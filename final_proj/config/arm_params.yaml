@@ -1,0 +1,2 @@
+arm_description:
+  j0_yaw: 2.1  # -0.7 for the red arm; 2.1 for the blue arm
