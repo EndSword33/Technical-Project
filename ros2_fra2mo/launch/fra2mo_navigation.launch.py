@@ -23,7 +23,7 @@ def generate_launch_description():
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
-        default_value=PathJoinSubstitution([fra2mo_dir, 'maps', 'map.yaml']),
+        default_value=PathJoinSubstitution([fra2mo_dir, 'maps', 'workshop.yaml']),
         description='Full path to map yaml file to load',
     )
 
