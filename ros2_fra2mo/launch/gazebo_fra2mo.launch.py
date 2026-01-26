@@ -20,7 +20,7 @@ def generate_launch_description():
     xacro = os.path.join(get_package_share_directory('ros2_fra2mo'), "urdf", xacro_file_name)
 
     models_path = os.path.join(get_package_share_directory('ros2_fra2mo'), 'models')
-    world_file = os.path.join(get_package_share_directory('ros2_fra2mo'), "worlds", "leonardo_race_field.sdf")
+    world_file = os.path.join(get_package_share_directory('ros2_fra2mo'), "worlds", "workshop.sdf")
 
     # Genera la descrizione del robot usando xacro
     robot_description_xacro = {"robot_description": ParameterValue(Command(['xacro ', xacro]),value_type=str)}
@@ -57,7 +57,7 @@ def generate_launch_description():
             launch_arguments={'gz_args': LaunchConfiguration('gz_args')}.items()
     )
 
-    position = [0.0, 0.0, 0.100]
+    position = [1.46, -0.91, 0.100, 0.0, 0.0, 3.14]  # x, y, z, roll, pitch, yaw
 
     # Define a Node to spawn the robot in the Gazebo simulation
     gz_spawn_entity = Node(
@@ -69,7 +69,11 @@ def generate_launch_description():
                    '-allow_renaming', 'true',
                     "-x", str(position[0]),
                     "-y", str(position[1]),
-                    "-z", str(position[2]),]
+                    "-z", str(position[2]),
+                    "-R", str(position[3]),
+                    "-P", str(position[4]),
+                    "-Y", str(position[5]),
+                    ]
     )
 
     bridge = Node(
@@ -106,6 +110,6 @@ def generate_launch_description():
  
     ign = [gazebo_ignition, gz_spawn_entity]
     nodes_to_start = [robot_state_publisher_node, joint_state_publisher_node, *ign, bridge, 
-                      odom_tf, ign_clock_bridge]
+                      odom_tf]
 
     return LaunchDescription([SetEnvironmentVariable(name="GZ_SIM_RESOURCE_PATH", value = models_path + ':' + os.environ.get('GZ_SIM_RESOURCE_PATH', ''))] + declared_arguments + nodes_to_start)
