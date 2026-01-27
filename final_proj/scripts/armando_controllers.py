@@ -5,7 +5,7 @@ Armando Mission Controller with Waypoint Execution
 Handles mission-specific manipulation tasks for Armando robots.
 Implements waypoint navigation for pick and place operations.
 
-Author: Franco
+Author: Daniele
 Date: 2026-01-26
 """
 

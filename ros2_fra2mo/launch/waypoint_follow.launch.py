@@ -7,7 +7,7 @@ Launches mission coordinator and all robot controllers for coordinated operation
 Usage:
     ros2 launch ros2_fra2mo waypoint_follow.launch.py
 
-Author: Franco
+Author: Daniele
 Date: 2026-01-26
 """
 

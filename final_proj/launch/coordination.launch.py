@@ -7,7 +7,7 @@ Launches all nodes for coordinated mission.
 Usage:
     ros2 launch ros2_fra2mo coordination.launch.py
 
-Author: Franco
+Author: Daniele
 Date: 2026-01-26
 """
 

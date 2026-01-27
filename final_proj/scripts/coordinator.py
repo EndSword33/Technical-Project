@@ -13,7 +13,7 @@ Workflow:
 5. Armando 2 picks hammer and stores in cabinet, returns to initial pose
 6. Rover continues to remaining waypoints
 
-Author: Franco
+Author: Daniele
 Date: 2026-01-26
 """
 

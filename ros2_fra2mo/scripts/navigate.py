@@ -4,7 +4,7 @@ Coordinated Waypoint Navigation Node
 
 This node navigates Fra2mo through waypoints with coordinator integration.
 
-Author: Franco
+Author: Daniele
 Date: 2026-01-26
 """
 
