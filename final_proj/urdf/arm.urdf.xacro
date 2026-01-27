@@ -532,7 +532,7 @@
     <hardware>
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
     </hardware>
-    
+      
     <joint name="${prefix}j0">
       <command_interface name="position">
         <param name="min">-2.57</param>

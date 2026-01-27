@@ -7,7 +7,7 @@ from launch.substitutions import Command
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 
-def spawn_armando(robot_id, x_pose, y_pose, z_pose):
+def spawn_armando(robot_id, x_pose, y_pose, z_pose, yaw):
     """
     Spawna un singolo Armando con namespace e configurazione unici
     
@@ -71,6 +71,7 @@ def spawn_armando(robot_id, x_pose, y_pose, z_pose):
             '-x', str(x_pose),
             '-y', str(y_pose),
             '-z', str(z_pose),
+            '-Y', str(yaw)
         ],
         output='screen'
     )
@@ -158,8 +159,8 @@ def generate_launch_description():
     
     # Posizioni Armando 
     armando_positions = {
-        1: {'x': 1.34, 'y': -0.43, 'z':  0.35},  
-        2: {'x': 0.39, 'y':  1.62, 'z':  0.01},  
+        1: {'x': 1.34, 'y': -0.43, 'z':  0.35, 'yaw': 3.14},  
+        2: {'x': 0.14, 'y':  1.31, 'z':  0.01, 'yaw': 1.57},  
     } 
     
     all_nodes = []
@@ -171,7 +172,8 @@ def generate_launch_description():
             robot_id=robot_id,
             x_pose=pos['x'],
             y_pose=pos['y'],
-            z_pose=pos['z']
+            z_pose=pos['z'],
+            yaw=pos['yaw']
         )
         
         if robot_id == 1:
