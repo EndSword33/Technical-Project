@@ -16,13 +16,14 @@ find_package(ros_gz_sim REQUIRED)
 find_package(xacro REQUIRED)
 
 
-install(DIRECTORY urdf meshes config launch
+install(DIRECTORY urdf meshes config launch scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
 # Install Python executables
 install(PROGRAMS
-  
+  scripts/coordinator.py
+  scripts/armando_controllers.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+"""
+Coordinated Waypoint Navigation Node
+
+This node navigates Fra2mo through waypoints with coordinator integration.
+
+Author: Franco
+Date: 2026-01-26
+"""
+
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
@@ -7,6 +16,7 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String
 import math
 import sys
+import time
 
 
 # ============================================
@@ -15,16 +25,16 @@ import sys
 
 WAYPOINTS = [
     # Primo waypoint
-    {'name': 'Waypoint 1', 'x': 1.45, 'y': -0.111, 'yaw': -1.57},
+    {'name': 'Waypoint_1', 'x': 1.45, 'y': -0.111, 'yaw': 0.0},
     
     # Secondo waypoint
-    {'name': 'Waypoint 2', 'x': 1.27, 'y': -2.42, 'yaw': -1.57},
+    {'name': 'Waypoint_2', 'x': 1.6, 'y': -2.33, 'yaw': 0.0},
     
     # Ritorno al primo waypoint con yaw diverso
-    {'name': 'Waypoint 1 (return)', 'x': 1.45, 'y': -0.111, 'yaw': 3.14},
+    {'name': 'Waypoint_3', 'x': 1.45, 'y': -0.111, 'yaw': 3.14},
     
     # Ritorno alla posizione iniziale
-    {'name': 'Initial Position (return)', 'x': -0.127, 'y': -0.04, 'yaw': 3.14},
+    {'name': 'Home', 'x': -0.02, 'y': -0.02, 'yaw': 3.14},
 ]
 
 
@@ -43,10 +53,10 @@ def yaw_to_quaternion(yaw):
         List [qx, qy, qz, qw]
     """
     return [
-        0.0,                    # qx
-        0.0,                    # qy
-        math.sin(yaw / 2.0),   # qz
-        math.cos(yaw / 2.0)    # qw
+        0.0,
+        0.0,
+        math.sin(yaw / 2.0),
+        math.cos(yaw / 2.0)
     ]
 
 
@@ -67,12 +77,10 @@ def create_goal_pose(navigator, x, y, yaw):
     pose.header.frame_id = 'map'
     pose.header.stamp = navigator.get_clock().now().to_msg()
     
-    # Position
     pose.pose.position.x = x
     pose.pose.position.y = y
     pose.pose.position.z = 0.0
     
-    # Orientation (from yaw)
     q = yaw_to_quaternion(yaw)
     pose.pose.orientation.x = q[0]
     pose.pose.orientation.y = q[1]
@@ -83,12 +91,12 @@ def create_goal_pose(navigator, x, y, yaw):
 
 
 # ============================================
-# WAYPOINT NAVIGATION NODE
+# COORDINATED WAYPOINT NAVIGATION NODE
 # ============================================
 
-class WaypointNavigationNode(Node):
+class CoordinatedWaypointNavigation(Node):
     """
-    Node for autonomous navigation through multiple waypoints.
+    Node for coordinated waypoint navigation with mission controller.
     """
     
     def __init__(self):
@@ -97,30 +105,64 @@ class WaypointNavigationNode(Node):
         # Initialize navigator
         self.navigator = BasicNavigator()
         
-        # Publisher for navigation status
-        self.navigation_status_pub = self.create_publisher(
-            String, 
-            '/navigation_status', 
+        # Publisher for rover status
+        self.status_pub = self.create_publisher(String, '/rover/status', 10)
+        
+        # Subscriber for mission commands
+        self.cmd_sub = self.create_subscription(
+            String,
+            '/rover/mission_command',
+            self.mission_command_callback,
             10
         )
         
-        self.get_logger().info('Waypoint Navigation Node initialized')
-        self.get_logger().info(f'Total waypoints to navigate: {len(WAYPOINTS)}')
+        # Mission state
+        self.current_waypoint_index = 0
+        self.mission_active = False
+        self.waiting_for_command = True
+        
+        self.get_logger().info('🚙 Coordinated Waypoint Navigation initialized')
+        
+        # Wait for Nav2
+        self.get_logger().info('Waiting for Nav2 to become active...')
+        self.navigator.waitUntilNav2Active()
+        self.get_logger().info('🟢 Nav2 is active!')
+        
+        # Publish READY status
+        time.sleep(1.0)
+        self.status_pub.publish(String(data='READY'))
+        self.get_logger().info('🚙 Rover READY and waiting for coordinator commands...')
     
-    def navigate_to_waypoint(self, waypoint, waypoint_index):
+    def mission_command_callback(self, msg):
+        """Handle commands from mission coordinator"""
+        command = msg.data
+        self.get_logger().info(f'📨 Received command: {command}')
+        
+        if command == 'GOTO_WP1':
+            self.get_logger().info('Starting navigation to Waypoint 1...')
+            self.current_waypoint_index = 0
+            self.navigate_to_waypoint(WAYPOINTS[0])
+            
+        elif command == 'GOTO_WP2':
+            self.get_logger().info('Starting navigation to Waypoint 2...')
+            self.current_waypoint_index = 1
+            self.navigate_to_waypoint(WAYPOINTS[1])
+            
+        elif command == 'CONTINUE_MISSION':
+            self.get_logger().info('Continuing mission to remaining waypoints...')
+            self.current_waypoint_index = 2
+            self.navigate_remaining_waypoints()
+    
+    def navigate_to_waypoint(self, waypoint):
         """
         Navigate to a single waypoint.
         
         Args:
             waypoint: Dictionary with 'name', 'x', 'y', 'yaw'
-            waypoint_index: Index of current waypoint (for logging)
-            
-        Returns:
-            True if navigation succeeded, False otherwise
         """
         self.get_logger().info(
             f'\n{"="*60}\n'
-            f'Navigating to {waypoint["name"]} ({waypoint_index + 1}/{len(WAYPOINTS)})\n'
+            f'Navigating to {waypoint["name"]}\n'
             f'Target: x={waypoint["x"]:.3f}, y={waypoint["y"]:.3f}, '
             f'yaw={waypoint["yaw"]:.2f} rad ({math.degrees(waypoint["yaw"]):.1f}°)\n'
             f'{"="*60}'
@@ -132,11 +174,6 @@ class WaypointNavigationNode(Node):
             waypoint['x'],
             waypoint['y'],
             waypoint['yaw']
-        )
-        
-        # Publish navigation status: NAVIGATING
-        self.navigation_status_pub.publish(
-            String(data=f'NAVIGATING_TO_{waypoint["name"].upper().replace(" ", "_")}')
         )
         
         # Start navigation
@@ -174,91 +211,66 @@ class WaypointNavigationNode(Node):
         result = self.navigator.getResult()
         
         if result == TaskResult.SUCCEEDED:
-            self.get_logger().info(
-                f'✅ Successfully reached {waypoint["name"]}!\n'
-            )
-            self.navigation_status_pub.publish(
-                String(data=f'ARRIVED_AT_{waypoint["name"].upper().replace(" ", "_")}')
-            )
+            self.get_logger().info(f'✅ Successfully reached {waypoint["name"]}!\n')
+            
+            # Publish appropriate status
+            if waypoint['name'] == 'Waypoint_1':
+                self.status_pub.publish(String(data='ARRIVED_WP1'))
+            elif waypoint['name'] == 'Waypoint_2':
+                self.status_pub.publish(String(data='ARRIVED_WP2'))
+            elif waypoint['name'] == 'Home':
+                self.status_pub.publish(String(data='ARRIVED_HOME'))
+            
             return True
             
         elif result == TaskResult.CANCELED:
             self.get_logger().warn(f'❌ Navigation to {waypoint["name"]} was canceled!')
-            self.navigation_status_pub.publish(String(data='CANCELED'))
+            self.status_pub.publish(String(data='NAVIGATION_FAILED'))
             return False
             
         elif result == TaskResult.FAILED:
             self.get_logger().error(f'❌ Navigation to {waypoint["name"]} failed!')
-            self.navigation_status_pub.publish(String(data='FAILED'))
+            self.status_pub.publish(String(data='NAVIGATION_FAILED'))
             return False
             
         else:
             self.get_logger().error(
                 f'❌ Navigation to {waypoint["name"]} returned invalid status: {result}'
             )
-            self.navigation_status_pub.publish(String(data='UNKNOWN_ERROR'))
+            self.status_pub.publish(String(data='NAVIGATION_FAILED'))
             return False
     
-    def navigate_through_waypoints(self):
-        """
-        Navigate through all waypoints sequentially.
-        
-        Returns:
-            True if all waypoints were reached successfully, False otherwise
-        """
-        # Wait for Nav2 to be active
-        self.get_logger().info('Waiting for Nav2 to become active...')
-        self.navigator.waitUntilNav2Active()
-        self.get_logger().info('🟢 Nav2 is active!')
-        
-        # Navigate through each waypoint
-        for idx, waypoint in enumerate(WAYPOINTS):
-            success = self.navigate_to_waypoint(waypoint, idx)
+    def navigate_remaining_waypoints(self):
+        """Navigate through remaining waypoints (WP3 and Home)"""
+        for idx in range(self.current_waypoint_index, len(WAYPOINTS)):
+            waypoint = WAYPOINTS[idx]
+            success = self.navigate_to_waypoint(waypoint)
             
             if not success:
-                self.get_logger().error(
-                    f'Mission aborted at waypoint {idx + 1}/{len(WAYPOINTS)}'
-                )
+                self.get_logger().error(f'Failed to reach {waypoint["name"]}')
                 return False
             
             # Small pause between waypoints
             if idx < len(WAYPOINTS) - 1:
                 self.get_logger().info('Pausing 2 seconds before next waypoint...\n')
-                rclpy.spin_once(self, timeout_sec=2.0)
+                time.sleep(2.0)
         
-        # Mission complete
         self.get_logger().info(
             f'\n{"🎉"*20}\n'
-            f'MISSION COMPLETE! All {len(WAYPOINTS)} waypoints reached successfully!\n'
+            f'Rover mission complete! All waypoints reached.\n'
             f'{"🎉"*20}\n'
         )
-        self.navigation_status_pub.publish(String(data='MISSION_COMPLETE'))
-        
         return True
 
 
-# ============================================
-# MAIN
-# ============================================
-
 def main():
-    # Initialize ROS2
     rclpy.init()
     
-    success = False
     node = None
     
     try:
-        # Create node
-        node = WaypointNavigationNode()
-        
-        # Execute waypoint navigation
-        success = node.navigate_through_waypoints()
-        
-        # Keep node alive briefly to ensure final messages are sent
-        if success:
-            node.get_logger().info('Node will shutdown in 2 seconds...')
-            rclpy.spin_once(node, timeout_sec=2.0)
+        node = CoordinatedWaypointNavigation()
+        rclpy.spin(node)
         
     except KeyboardInterrupt:
         print('\n⚠️ Interrupted by user')
@@ -268,7 +280,6 @@ def main():
         traceback.print_exc()
         return 1
     finally:
-        # Cleanup
         if node is not None:
             try:
                 node.destroy_node()
@@ -276,7 +287,7 @@ def main():
                 pass
         rclpy.shutdown()
     
-    return 0 if success else 1
+    return 0
 
 
 if __name__ == '__main__':
