@@ -52,7 +52,7 @@ This project demonstrates advanced multi-robot coordination using:
 
 ### 1. Install ROS2 Humble
 
-```bash
+```
 # Set locale
 sudo apt update && sudo apt install locales
 sudo locale-gen en_US en_US.UTF-8
@@ -65,7 +65,7 @@ sudo add-apt-repository universe
 sudo apt update && sudo apt install curl -y
 sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
+```
 # Install ROS2 packages
 sudo apt update
 sudo apt install ros-humble-desktop
@@ -73,8 +73,9 @@ sudo apt install ros-humble-navigation2 ros-humble-nav2-bringup
 sudo apt install ros-humble-gazebo-ros-pkgs
 sudo apt install ros-humble-ros2-control ros-humble-ros2-controllers
 sudo apt install ros-humble-nav2-simple-commander
+
 2. Clone and Build the Project
-bash
+```
 # Create workspace
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
@@ -92,8 +93,8 @@ colcon build --symlink-install
 # Source workspace
 source ~/ros2_ws/install/setup.bash
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
-📁 Package Structure
-text
+```
+###📁 Package Structure
 Technical-Project/
 ├── ros2_fra2mo/                    # Main mobile robot package
 │   ├── config/
@@ -138,38 +139,38 @@ Technical-Project/
 │   └── urdf/
 │       └── arm.urdf.xacro      # Manipulator description
 
-🎮 Usage
+###🎮 Usage
 Quick Start
 Follow these steps in separate terminals:
 
 Terminal 1: Launch Gazebo World
-bash
+```
 source ~/ros2_ws/install/setup.bash
 ros2 launch ros2_fra2mo gazebo_fra2mo.launch.py
 Wait for Gazebo to fully load (~10 seconds)
-
+```
 Terminal 2: Launch Navigation Stack
-bash
+```
 source ~/ros2_ws/install/setup.bash
 ros2 launch ros2_fra2mo fra2mo_navigation.launch.py
 Wait for "Nav2 is fully active" message 
-
+```
 Terminal 3: Spawn Armando Robots
-bash
+```
 source ~/ros2_ws/install/setup.bash
 ros2 launch final_project spawn_armando.launch.py
 Wait for both robots to spawn and controllers to load (~10-15 seconds)
-
+```
 Terminal 4: Start Coordinated Mission
-bash
+```
 source ~/ros2_ws/install/setup.bash
 ros2 launch ros2_fra2mo waypoint_follow.launch.py
 Mission starts automatically when all robots are ready
-
+```
 Monitoring the Mission
 In a 5th terminal, monitor robot status:
 
-bash
+```
 # Watch rover status
 ros2 topic echo /rover/status
 
@@ -181,7 +182,8 @@ ros2 topic echo /armando_2/status
 
 # List all active topics
 ros2 topic list
-⚙️ Configuration
+```
+###⚙️ Configuration
 Navigation Parameters
 Edit ros2_fra2mo/config/navigation.yaml to tune:
 
@@ -195,7 +197,7 @@ Behavior Server: Recovery behaviors
 
 Key parameters:
 
-text
+```
 controller_server:
   FollowPath:
     plugin: "dwb_core::DWBLocalPlanner"
@@ -223,9 +225,10 @@ WAYPOINTS = [
     {'name': 'Waypoint_3', 'x': 1.45, 'y': -0.111, 'yaw': 0.0},
     {'name': 'Home', 'x': 1.46, 'y': -0.91, 'yaw': 3.14},
 ]
-🏗️ Architecture
+```
+###🏗️ Architecture
 System Architecture
-text
+```
 ┌─────────────────────────────────────────────────────────┐
 │              Mission Coordinator (State Machine)         │
 │  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐     │
@@ -266,16 +269,16 @@ class MissionState(Enum):
     ROVER_TO_HOME = 10          # Return to home position
     MISSION_COMPLETE = 11       # Mission successful
     MISSION_FAILED = 12         # Mission failed
-🔧 Troubleshooting
+```
+###🔧 Troubleshooting
 Common Issues
 Issue: Controller failed to configure
 
-bash
+```
 # Solution: Increase spawn delays in spawn_armando.launch.py
 # Change period from 5.0 to 7.0 seconds
 Issue: Nav2 not active
 
-bash
 # Check Nav2 lifecycle nodes
 ros2 lifecycle list /controller_server
 ros2 lifecycle get /controller_server
@@ -283,17 +286,14 @@ ros2 lifecycle get /controller_server
 # Should show "active"
 Issue: Robot spawns underground
 
-bash
 # Check Z coordinate in spawn_entity arguments
 # Ensure z_pose > 0.0
 Issue: Navigation fails immediately
 
-bash
 # Verify initial pose is set
 # Check that map is loaded in RViz
 # Ensure costmaps are visible
 Debug Commands
-bash
 # List all active nodes
 ros2 node list
 
@@ -312,7 +312,8 @@ ros2 topic echo /armando_1/joint_states
 
 # View controller status
 ros2 control list_controllers -c /armando_1/controller_manager
-📊 Performance
+```
+###📊 Performance
 Mission Duration: ~2-3 minutes (full workflow)
 
 Navigation Accuracy: ±0.1m position, ±0.2 rad orientation
@@ -321,35 +322,13 @@ Manipulation Success Rate: >95% in simulation
 
 Controller Frequency: 20 Hz (DWB), 100 Hz (joint controllers)
 
-🤝 Contributing
-Contributions are welcome! Please follow these guidelines:
 
-Fork the repository
-
-Create a feature branch (git checkout -b feature/AmazingFeature)
-
-Commit your changes (git commit -m 'Add some AmazingFeature')
-
-Push to the branch (git push origin feature/AmazingFeature)
-
-Open a Pull Request
-
-📝 License
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 👤 Author
 EndSword33
 
 GitHub: @EndSword33
 
-🙏 Acknowledgments
-ROS2 Navigation Team for Nav2 stack
-
-Gazebo Team for simulation environment
-
-ROS2 Control Team for controller framework
-
-Open Source Robotics Foundation
 
 📚 References
 ROS2 Documentation
