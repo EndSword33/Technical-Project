@@ -36,8 +36,7 @@ This project demonstrates advanced multi-robot coordination using:
 - [Configuration](#configuration)
 - [Architecture](#architecture)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+
 
 ## 💻 System Requirements
 
