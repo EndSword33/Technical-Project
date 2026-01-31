@@ -94,7 +94,7 @@ colcon build --symlink-install
 source ~/ros2_ws/install/setup.bash
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 ```
-###📁 Package Structure
+### 📁 Package Structure
 ```
 Technical-Project/
 ├── ros2_fra2mo/                    # Main mobile robot package
@@ -141,7 +141,7 @@ Technical-Project/
 │       └── arm.urdf.xacro      # Manipulator description
 ```
 
-###🎮 Usage
+### 🎮 Usage
 Quick Start
 Follow these steps in separate terminals:
 
@@ -185,7 +185,7 @@ ros2 topic echo /armando_2/status
 # List all active topics
 ros2 topic list
 ```
-###⚙️ Configuration
+### ⚙️ Configuration
 Navigation Parameters
 Edit ros2_fra2mo/config/navigation.yaml to tune:
 
@@ -228,7 +228,7 @@ WAYPOINTS = [
     {'name': 'Home', 'x': 1.46, 'y': -0.91, 'yaw': 3.14},
 ]
 ```
-###🏗️ Architecture
+### 🏗️ Architecture
 System Architecture
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -272,7 +272,7 @@ class MissionState(Enum):
     MISSION_COMPLETE = 11       # Mission successful
     MISSION_FAILED = 12         # Mission failed
 ```
-###🔧 Troubleshooting
+### 🔧 Troubleshooting
 Common Issues
 Issue: Controller failed to configure
 
@@ -315,7 +315,7 @@ ros2 topic echo /armando_1/joint_states
 # View controller status
 ros2 control list_controllers -c /armando_1/controller_manager
 ```
-###📊 Performance
+### 📊 Performance
 Mission Duration: ~2-3 minutes (full workflow)
 
 Navigation Accuracy: ±0.1m position, ±0.2 rad orientation
@@ -326,19 +326,6 @@ Controller Frequency: 20 Hz (DWB), 100 Hz (joint controllers)
 
 
 
-👤 Author
-EndSword33
 
-GitHub: @EndSword33
-
-
-📚 References
-ROS2 Documentation
-
-Nav2 Documentation
-
-Gazebo Classic Documentation
-
-ROS2 Control Documentation
 
 
