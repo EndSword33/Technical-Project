@@ -95,6 +95,7 @@ source ~/ros2_ws/install/setup.bash
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 ```
 ###📁 Package Structure
+```
 Technical-Project/
 ├── ros2_fra2mo/                    # Main mobile robot package
 │   ├── config/
@@ -138,6 +139,7 @@ Technical-Project/
 │   │   └── armando_controllers.py
 │   └── urdf/
 │       └── arm.urdf.xacro      # Manipulator description
+```
 
 ###🎮 Usage
 Quick Start
