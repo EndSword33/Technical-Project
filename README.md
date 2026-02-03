@@ -232,21 +232,21 @@ WAYPOINTS = [
 System Architecture
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              Mission Coordinator (State Machine)         │
-│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐     │
-│  │ INIT │→│ ARM1 │→│ NAV1 │→│ ARM2 │→│ NAV2 │→ END │
-│  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘     │
+│              Mission Coordinator (State Machine)        │
+│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐       │
+│  │ INIT │→ │ ARM1 │→ │ NAV1 │→ │ ARM2 │→ │ NAV2 │→ END  │ 
+│  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘       │
 └──────────────┬─────────────────┬─────────────────┬──────┘
                │                 │                 │
-        ┌──────▼──────┐   ┌──────▼──────┐   ┌─────▼──────┐
-        │  Armando 1  │   │   Fra2mo    │   │ Armando 2  │
-        │  Controller │   │ Navigation  │   │ Controller │
-        └──────┬──────┘   └──────┬──────┘   └─────┬──────┘
+        ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
+        │  Armando 1  │   │   Fra2mo    │   │ Armando 2   │
+        │  Controller │   │ Navigation  │   │ Controller  │
+        └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
                │                 │                 │
-        ┌──────▼──────┐   ┌──────▼──────┐   ┌─────▼──────┐
-        │ Position    │   │   Nav2      │   │ Position   │
-        │ Controller  │   │   Stack     │   │ Controller │
-        └─────────────┘   └─────────────┘   └────────────┘
+        ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
+        │ Position    │   │   Nav2      │   │ Position    │
+        │ Controller  │   │   Stack     │   │ Controller  │
+        └─────────────┘   └─────────────┘   └─────────────┘
 Communication Topics
 Topic	Type	Publisher	Subscriber	Description
 /rover/mission_command	String	Coordinator	Rover Nav	Navigation commands
